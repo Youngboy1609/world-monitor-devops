@@ -1,0 +1,262 @@
+name: DevSecOps
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dast_target_url:
+        description: "Optional URL for OWASP ZAP baseline scan"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run typecheck:api
+      - run: npm run test:data
+      - run: npm run test:sidecar
+
+  sast:
+    name: SAST Semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Semgrep
+        run: python -m pip install --upgrade pip semgrep
+
+      - name: Run Semgrep default rules
+        run: |
+          set -euo pipefail
+          semgrep scan --config p/default --json --output semgrep.json || true
+
+      - name: Fail on blocking Semgrep findings
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('semgrep.json', 'utf8'));
+          const blocking = (report.results || []).filter((result) => {
+            const severity = String(result.extra?.severity || '').toUpperCase();
+            return severity === 'ERROR';
+          });
+          if (blocking.length > 0) {
+            console.error(`Semgrep found ${blocking.length} ERROR severity finding(s).`);
+            for (const finding of blocking.slice(0, 20)) {
+              console.error(`${finding.path}:${finding.start?.line || 0} ${finding.check_id}`);
+            }
+            process.exit(1);
+          }
+          console.log('No Semgrep ERROR severity findings.');
+          NODE
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-report
+          path: semgrep.json
+          if-no-files-found: ignore
+
+  dependency-scan:
+    name: Dependency scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: root
+            path: .
+          - name: scripts
+            path: scripts
+          - name: blog-site
+            path: blog-site
+          - name: pro-test
+            path: pro-test
+          - name: consumer-prices-core
+            path: consumer-prices-core
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.package.path }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.package.path }}
+        run: npm ci --ignore-scripts
+
+      - name: Run npm audit
+        working-directory: ${{ matrix.package.path }}
+        run: npm audit --json > npm-audit.json || true
+
+      - name: Fail on fixable high or critical vulnerabilities
+        working-directory: ${{ matrix.package.path }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('npm-audit.json', 'utf8'));
+          const vulnerabilities = Object.values(report.vulnerabilities || {});
+          const blocking = vulnerabilities.filter((vulnerability) => {
+            const severity = String(vulnerability.severity || '').toLowerCase();
+            return ['high', 'critical'].includes(severity) && vulnerability.fixAvailable !== false;
+          });
+          if (blocking.length > 0) {
+            console.error(`npm audit found ${blocking.length} fixable high/critical vulnerability record(s).`);
+            for (const vulnerability of blocking.slice(0, 20)) {
+              const via = Array.isArray(vulnerability.via)
+                ? vulnerability.via.map((item) => typeof item === 'string' ? item : item.name).join(', ')
+                : '';
+              console.error(`${vulnerability.name} (${vulnerability.severity}) via ${via}`);
+            }
+            process.exit(1);
+          }
+          console.log('No fixable high/critical npm audit vulnerabilities.');
+          NODE
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-audit-${{ matrix.package.name }}
+          path: ${{ matrix.package.path }}/npm-audit.json
+          if-no-files-found: ignore
+
+  iac-scan:
+    name: IaC and Dockerfile scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy config scan
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            aquasec/trivy:latest \
+            config --scanners misconfig --severity HIGH,CRITICAL \
+            --format json --output trivy-config.json .
+
+      - name: Enforce high/critical IaC findings
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            aquasec/trivy:latest \
+            config --scanners misconfig --severity HIGH,CRITICAL \
+            --exit-code 1 .
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-config-report
+          path: trivy-config.json
+          if-no-files-found: ignore
+
+  container-scan:
+    name: Container image scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build WorldMonitor image
+        run: docker build -t worldmonitor:${{ github.sha }} -f Dockerfile .
+
+      - name: Run Trivy image scan
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            aquasec/trivy:latest \
+            image --ignore-unfixed --severity HIGH,CRITICAL \
+            --format json --output trivy-image.json worldmonitor:${{ github.sha }}
+
+      - name: Enforce fixable high/critical image vulnerabilities
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest \
+            image --ignore-unfixed --severity HIGH,CRITICAL \
+            --exit-code 1 worldmonitor:${{ github.sha }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-image-report
+          path: trivy-image.json
+          if-no-files-found: ignore
+
+  dast-baseline:
+    name: DAST OWASP ZAP baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    if: github.event_name == 'workflow_dispatch' && inputs.dast_target_url != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ZAP baseline scan
+        env:
+          DAST_TARGET_URL: ${{ inputs.dast_target_url }}
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD:/zap/wrk" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t "$DAST_TARGET_URL" \
+            -J zap-report.json -r zap-report.html -x zap-report.xml -I || true
+
+      - name: Fail on high-risk ZAP alerts
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('zap-report.json', 'utf8'));
+          const sites = report.site || [];
+          const alerts = sites.flatMap((site) => site.alerts || []);
+          const highRiskAlerts = alerts.filter((alert) => Number(alert.riskcode) >= 3);
+          if (highRiskAlerts.length > 0) {
+            console.error(`ZAP found ${highRiskAlerts.length} high-risk alert(s).`);
+            for (const alert of highRiskAlerts.slice(0, 20)) {
+              console.error(`${alert.alert}: ${alert.riskdesc}`);
+            }
+            process.exit(1);
+          }
+          console.log('No high-risk ZAP alerts.');
+          NODE
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-baseline-report
+          path: |
+            zap-report.json
+            zap-report.html
+            zap-report.xml
+          if-no-files-found: ignore
