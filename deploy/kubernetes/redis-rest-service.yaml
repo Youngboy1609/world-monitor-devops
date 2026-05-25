@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-rest
+  labels:
+    app.kubernetes.io/name: redis-rest
+    app.kubernetes.io/part-of: worldmonitor
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: redis-rest
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: worldmonitor-config
+  labels:
+    app.kubernetes.io/part-of: worldmonitor
+data:
+  LOCAL_API_PORT: "46123"
+  LOCAL_API_MODE: "docker"
+  LOCAL_API_CLOUD_FALLBACK: "false"
+  UPSTASH_REDIS_REST_URL: "http://redis-rest:80"
+  WS_RELAY_URL: "http://ais-relay:3004"
+  PORT: "3004"
+  REDIS_MAXMEMORY: "256mb"

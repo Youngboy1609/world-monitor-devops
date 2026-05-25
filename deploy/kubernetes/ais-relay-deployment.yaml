@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ais-relay
+  labels:
+    app.kubernetes.io/name: ais-relay
+    app.kubernetes.io/part-of: worldmonitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ais-relay
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ais-relay
+        app.kubernetes.io/part-of: worldmonitor
+    spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ais-relay
+          image: ghcr.io/GHCR_OWNER/worldmonitor-ais-relay:main-latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: worldmonitor-config
+                  key: PORT
+            - name: AISSTREAM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: worldmonitor-secrets
+                  key: AISSTREAM_API_KEY
+            - name: RELAY_SHARED_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: worldmonitor-secrets
+                  key: RELAY_SHARED_SECRET
+          ports:
+            - name: http
+              containerPort: 3004
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              cpu: 750m
+              memory: 768Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL

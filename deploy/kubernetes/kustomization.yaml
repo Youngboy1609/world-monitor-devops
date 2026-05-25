@@ -1,0 +1,29 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: worldmonitor
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secret.template.yaml
+  - redis-statefulset.yaml
+  - redis-service.yaml
+  - redis-rest-deployment.yaml
+  - redis-rest-service.yaml
+  - ais-relay-deployment.yaml
+  - ais-relay-service.yaml
+  - worldmonitor-deployment.yaml
+  - worldmonitor-service.yaml
+  - ingress.yaml
+
+images:
+  - name: ghcr.io/GHCR_OWNER/worldmonitor-app
+    newName: ghcr.io/youngboy1609/worldmonitor-app
+    newTag: main-latest
+  - name: ghcr.io/GHCR_OWNER/worldmonitor-ais-relay
+    newName: worldmonitor-ais-relay
+    newTag: local
+  - name: ghcr.io/GHCR_OWNER/worldmonitor-redis-rest
+    newName: ghcr.io/youngboy1609/worldmonitor-redis-rest
+    newTag: main-latest
