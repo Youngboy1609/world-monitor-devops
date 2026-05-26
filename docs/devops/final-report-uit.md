@@ -456,48 +456,43 @@ các mục tiêu chính về DevOps, DevSecOps và GitOps đã được đáp �
 
 ## 12. Tài liệu tham khảo
 
-[1] Trường Đại học Công nghệ Thông tin, "Hướng dẫn sử dụng Logo Trường Đại học
-Công nghệ Thông tin," Phòng Truyền thông và Tư vấn tuyển sinh UIT. [Trực
-tuyến]. Available: [https://truyenthong.uit.edu.vn/vi/page/huong-dan-su-dung-logo-truong-dai-hoc-cong-nghe-thong-tin](https://truyenthong.uit.edu.vn/vi/page/huong-dan-su-dung-logo-truong-dai-hoc-cong-nghe-thong-tin).
-[Truy cập: 26-05-2026].
-
-[2] GitHub Docs, "GitHub Actions documentation," GitHub. [Trực tuyến].
+[1] GitHub Docs, "GitHub Actions documentation," GitHub. [Trực tuyến].
 Available: [https://docs.github.com/en/actions](https://docs.github.com/en/actions).
 [Truy cập: 26-05-2026].
 
-[3] GitHub Docs, "Working with the Container registry," GitHub. [Trực tuyến].
+[2] GitHub Docs, "Working with the Container registry," GitHub. [Trực tuyến].
 Available: [https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
 [Truy cập: 26-05-2026].
 
-[4] Kubernetes, "Kubernetes Documentation," The Kubernetes Authors. [Trực
+[3] Kubernetes, "Kubernetes Documentation," The Kubernetes Authors. [Trực
 tuyến]. Available: [https://kubernetes.io/docs/home/](https://kubernetes.io/docs/home/).
 [Truy cập: 26-05-2026].
 
-[5] Argo CD, "Argo CD - Declarative GitOps CD for Kubernetes," Argo Project.
+[4] Argo CD, "Argo CD - Declarative GitOps CD for Kubernetes," Argo Project.
 [Trực tuyến]. Available: [https://argo-cd.readthedocs.io/en/stable/](https://argo-cd.readthedocs.io/en/stable/).
 [Truy cập: 26-05-2026].
 
-[6] Aqua Security, "Trivy User Guide," Trivy. [Trực tuyến]. Available:
+[5] Aqua Security, "Trivy User Guide," Trivy. [Trực tuyến]. Available:
 [https://trivy.dev/docs/latest/guide/](https://trivy.dev/docs/latest/guide/).
 [Truy cập: 26-05-2026].
 
-[7] Semgrep, "Add Semgrep to CI," Semgrep Documentation. [Trực tuyến].
+[6] Semgrep, "Add Semgrep to CI," Semgrep Documentation. [Trực tuyến].
 Available: [https://semgrep.dev/docs/deployment/add-semgrep-to-ci](https://semgrep.dev/docs/deployment/add-semgrep-to-ci).
 [Truy cập: 26-05-2026].
 
-[8] OWASP ZAP, "ZAP - Baseline Scan," OWASP ZAP Documentation. [Trực tuyến].
+[7] OWASP ZAP, "ZAP - Baseline Scan," OWASP ZAP Documentation. [Trực tuyến].
 Available: [https://www.zaproxy.org/docs/docker/baseline-scan/](https://www.zaproxy.org/docs/docker/baseline-scan/).
 [Truy cập: 26-05-2026].
 
-[9] Prometheus, "Overview," Prometheus Documentation. [Trực tuyến]. Available:
+[8] Prometheus, "Overview," Prometheus Documentation. [Trực tuyến]. Available:
 [https://prometheus.io/docs/introduction/overview/](https://prometheus.io/docs/introduction/overview/).
 [Truy cập: 26-05-2026].
 
-[10] Grafana Labs, "About Grafana," Grafana Documentation. [Trực tuyến].
+[9] Grafana Labs, "About Grafana," Grafana Documentation. [Trực tuyến].
 Available: [https://grafana.com/docs/grafana/latest/introduction/](https://grafana.com/docs/grafana/latest/introduction/).
 [Truy cập: 26-05-2026].
 
-[11] Grafana Labs, "Grafana Loki documentation," Grafana Loki Documentation.
+[10] Grafana Labs, "Grafana Loki documentation," Grafana Loki Documentation.
 [Trực tuyến]. Available: [https://grafana.com/docs/loki/latest/](https://grafana.com/docs/loki/latest/).
 [Truy cập: 26-05-2026].
 
