@@ -1,166 +1,154 @@
-# VIETNAM NATIONAL UNIVERSITY HO CHI MINH CITY
+# ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH
 
-# UNIVERSITY OF INFORMATION TECHNOLOGY
+# TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN
 
-# FACULTY: [FILL IN FACULTY]
+# KHOA: [ĐIỀN TÊN KHOA]
 
-## FINAL PROJECT REPORT
+## BÁO CÁO ĐỒ ÁN CUỐI KỲ
 
-## Course: DevOps
+## Môn học: DevOps
 
-## Topic
+## Tên đề tài
 
-# Designing and Implementing a DevOps, DevSecOps, and GitOps Process for the WorldMonitor Microservices Application on Kubernetes
+# Thiết kế và triển khai quy trình DevOps, DevSecOps và GitOps cho ứng dụng WorldMonitor microservices trên Kubernetes
 
-**Instructor:** [Fill in instructor name]
+**Giảng viên hướng dẫn:** [Điền tên giảng viên]
 
-**Team members:**
+**Thành viên nhóm:**
 
-| No. | Student ID | Full name | Responsibility |
+| STT | MSSV | Họ và tên | Nhiệm vụ |
 | --- | --- | --- | --- |
-| 1 | [Fill in] | [Person 1] | CI/CD, DevSecOps, report |
-| 2 | [Fill in] | [Person 2] | Kubernetes, GitOps, deployment, testing |
+| 1 | [Điền MSSV] | [Điền họ tên thành viên 1] | CI/CD, DevSecOps, báo cáo |
+| 2 | [Điền MSSV] | [Điền họ tên thành viên 2] | Kubernetes, GitOps, triển khai, kiểm thử |
 
-**Class:** [Fill in class code]
+**Lớp:** [Điền mã lớp]
 
-**Academic year:** 2025-2026
+**Năm học:** 2025-2026
 
-**Ho Chi Minh City, May 2026**
+**Thành phố Hồ Chí Minh, tháng 05 năm 2026**
 
----
+## Tóm tắt
 
-## Notes On UIT Report Format
+WorldMonitor là một hệ thống dashboard giám sát tình hình thế giới theo thời
+gian gần thực. Ứng dụng tổng hợp và trực quan hóa dữ liệu về địa chính trị, quân
+sự, kinh tế, an ninh mạng, khí hậu, hàng không, hàng hải và hạ tầng. Dự án gốc
+đã có Dockerfile và một số thành phần runtime độc lập, nhưng chưa được tổ chức
+thành một quy trình DevOps hoàn chỉnh để triển khai trên Kubernetes.
 
-This report follows the common UIT project/thesis submission structure: cover
-page, summary, table of contents, main chapters, experimental evidence,
-conclusion, references, and appendices. UIT faculty notices indicate that final
-reports are commonly submitted as PDF files following the university/faculty
-template, with additional artifacts such as summary report, presentation slides,
-software design, and demo video when required. The exact official template may
-be available through UIT DAA internal forms and can require student login.
+Đồ án này thiết kế và triển khai quy trình DevOps cho WorldMonitor trên
+Kubernetes. Quy trình bao gồm tự động hóa CI/CD bằng GitHub Actions, tích hợp
+DevSecOps với các bước SAST, dependency scanning, IaC scanning, container
+scanning và DAST tùy chọn, triển khai GitOps bằng Argo CD, đồng thời bổ sung
+monitoring/logging bằng Prometheus, Grafana, Loki và Promtail. Môi trường triển
+khai mục tiêu là Kubernetes cục bộ như K3s hoặc Minikube, phù hợp cho trình
+diễn cuối kỳ và kiểm thử có thể lặp lại.
 
----
-
-## Abstract
-
-WorldMonitor is a real-time global intelligence dashboard that aggregates and
-visualizes geopolitical, military, economic, cyber, climate, aviation, maritime,
-and infrastructure data. The original project already includes containerization
-support and several runtime components, but it was not organized as a complete
-DevOps workflow for Kubernetes.
-
-This project designs and implements a DevOps process for WorldMonitor on
-Kubernetes. The process includes CI/CD automation with GitHub Actions,
-DevSecOps checks such as SAST, dependency scanning, IaC scanning, container
-scanning, and optional DAST, GitOps deployment with Argo CD, and operational
-monitoring/logging using Prometheus, Grafana, Loki, and Promtail. The deployment
-target is a local Kubernetes environment such as K3s or Minikube, which is
-suitable for final project demonstration and repeatable testing.
-
-The result is a working DevOps project repository containing CI/CD workflows,
-Kubernetes manifests, GitOps configuration, monitoring configuration, and
-evidence screenshots showing application deployment, health checks, logs,
-metrics, and self-healing behavior.
+Kết quả đạt được là một repository DevOps hoàn chỉnh gồm workflow CI/CD,
+manifest Kubernetes, cấu hình GitOps, cấu hình quan sát hệ thống và các ảnh minh
+chứng cho việc triển khai ứng dụng, kiểm tra health endpoint, thu thập log,
+giám sát metrics và khả năng tự phục hồi khi pod bị xóa.
 
 ---
 
-## Table Of Contents
+## Mục lục
 
-1. Introduction
-2. Current System Analysis
-3. Target DevOps Architecture
-4. CI/CD Pipeline Design
-5. DevSecOps Integration
-6. Kubernetes And GitOps Deployment
-7. Monitoring And Logging
-8. Testing And Experimental Results
-9. Work Division
-10. Limitations And Future Work
-11. Conclusion
-12. References
-13. Appendices
-
----
-
-## 1. Introduction
-
-### 1.1 Background
-
-Modern software systems need fast and reliable delivery, repeatable
-infrastructure provisioning, and continuous security validation. DevOps combines
-development and operations practices to automate build, test, release, and
-deployment workflows. DevSecOps extends DevOps by integrating security checks
-early in the software delivery lifecycle. GitOps uses Git as the source of truth
-for infrastructure and deployment state, allowing Kubernetes clusters to be
-reconciled automatically from version-controlled manifests.
-
-### 1.2 Project Objective
-
-The objective of this project is to design and implement a DevOps pipeline for
-WorldMonitor, including:
-
-- Automated CI/CD for quality checks, image build, and image publishing.
-- DevSecOps checks in the CI/CD workflow.
-- Kubernetes deployment for the application services.
-- GitOps deployment management using Argo CD.
-- Monitoring and logging for runtime observability.
-- Deployment and testing evidence for final project evaluation.
-
-### 1.3 Scope
-
-The project focuses on DevOps enablement and operationalization. It does not
-refactor the application business logic or split every API domain into a
-separate microservice. Instead, it maps the existing runtime components into a
-practical microservices deployment model on Kubernetes.
+1. Giới thiệu
+2. Phân tích hiện trạng hệ thống
+3. Kiến trúc DevOps mục tiêu
+4. Thiết kế pipeline CI/CD
+5. Tích hợp DevSecOps
+6. Triển khai Kubernetes và GitOps
+7. Monitoring và logging
+8. Kiểm thử và kết quả thực nghiệm
+9. Phân chia công việc
+10. Hạn chế và hướng phát triển
+11. Kết luận
+12. Tài liệu tham khảo
+13. Phụ lục
 
 ---
 
-## 2. Current System Analysis
+## 1. Giới thiệu
 
-### 2.1 WorldMonitor Overview
+### 1.1 Bối cảnh
 
-WorldMonitor is a TypeScript/Vite single-page application with server-side API
-handlers and supporting services. It provides a global situational awareness
-dashboard with map layers, panels, live feeds, and external data integrations.
+Các hệ thống phần mềm hiện đại cần khả năng phát hành nhanh, ổn định, có thể
+lặp lại và có kiểm soát bảo mật. DevOps kết hợp giữa phát triển phần mềm và vận
+hành hệ thống nhằm tự động hóa các bước build, test, release và deploy.
+DevSecOps mở rộng DevOps bằng cách đưa kiểm tra bảo mật vào sớm trong vòng đời
+phát triển. GitOps sử dụng Git làm nguồn sự thật cho trạng thái hạ tầng và triển
+khai, giúp Kubernetes cluster tự động đồng bộ theo manifest đã được quản lý bằng
+version control.
 
-### 2.2 Existing Runtime Components
+### 1.2 Mục tiêu đề tài
 
-The repository contains these main deployable components:
+Mục tiêu của đồ án là thiết kế và triển khai quy trình DevOps cho WorldMonitor,
+bao gồm:
 
-| Component | Description |
+- Tự động hóa CI/CD cho kiểm tra chất lượng, build image và publish image.
+- Tích hợp các bước DevSecOps vào pipeline.
+- Triển khai các service của ứng dụng lên Kubernetes.
+- Quản lý triển khai bằng GitOps thông qua Argo CD.
+- Bổ sung monitoring và logging phục vụ vận hành.
+- Cung cấp bằng chứng thực nghiệm cho quá trình triển khai và kiểm thử.
+
+### 1.3 Phạm vi thực hiện
+
+Đồ án tập trung vào khía cạnh DevOps và vận hành hệ thống. Nhóm không refactor
+logic nghiệp vụ của ứng dụng và không tách toàn bộ API domain thành các
+microservice mới. Thay vào đó, nhóm ánh xạ các thành phần runtime hiện có thành
+mô hình microservices thực dụng trên Kubernetes.
+
+---
+
+## 2. Phân tích hiện trạng hệ thống
+
+### 2.1 Tổng quan WorldMonitor
+
+WorldMonitor là một ứng dụng single-page application viết bằng TypeScript/Vite,
+có các API handler phía server và các service phụ trợ. Ứng dụng cung cấp giao
+diện giám sát tình hình toàn cầu với bản đồ, panel dữ liệu, live feed và nhiều
+tích hợp dữ liệu bên ngoài.
+
+### 2.2 Các thành phần runtime hiện có
+
+Repository có các thành phần có thể triển khai độc lập như sau:
+
+| Thành phần | Mô tả |
 | --- | --- |
-| `worldmonitor` | Main container serving the SPA and local API sidecar |
-| `ais-relay` | Relay and data seed service for AIS, RSS/OREF, and selected upstream sources |
-| `redis-rest` | REST proxy used by the app to access Redis through an Upstash-compatible interface |
-| `redis` | Stateful cache for data, freshness metadata, and rate-limit state |
+| `worldmonitor` | Container chính, phục vụ SPA và local API sidecar |
+| `ais-relay` | Service relay và seed dữ liệu cho AIS, RSS/OREF và một số nguồn dữ liệu |
+| `redis-rest` | REST proxy giúp ứng dụng truy cập Redis theo giao diện tương thích Upstash |
+| `redis` | Stateful cache lưu dữ liệu, metadata freshness và trạng thái rate limit |
 
-### 2.3 Practical Microservices Mapping
+### 2.3 Ánh xạ sang mô hình microservices thực dụng
 
-The original application is not a pure domain-by-domain microservices system.
-For this final project, the architecture is converted into a practical
-Kubernetes microservices model:
+Ứng dụng gốc không phải một hệ thống microservices thuần theo từng domain API.
+Trong phạm vi đồ án, kiến trúc được chuyển sang mô hình Kubernetes
+microservices thực dụng:
 
 ```text
-User Browser
+Trình duyệt người dùng
     |
     v
 worldmonitor Service
-    |-- serves SPA
-    |-- proxies /api/* to local API sidecar
+    |-- phục vụ SPA
+    |-- proxy /api/* tới local API sidecar
     |
     +--> redis-rest Service --> Redis StatefulSet
     |
     +--> ais-relay Service
 ```
 
-This model is sufficient to demonstrate DevOps, DevSecOps, GitOps, Kubernetes
-deployment, monitoring, logging, and operational testing.
+Mô hình này đủ để thể hiện các nội dung trọng tâm của đồ án: DevOps,
+DevSecOps, GitOps, triển khai Kubernetes, monitoring, logging và kiểm thử vận
+hành.
 
 ---
 
-## 3. Target DevOps Architecture
+## 3. Kiến trúc DevOps mục tiêu
 
-### 3.1 High-Level Architecture
+### 3.1 Kiến trúc tổng thể
 
 ```text
 Developer
@@ -169,10 +157,10 @@ Developer
 GitHub Repository
    |
    +--> GitHub Actions CI/CD
-   |       |-- quality checks
-   |       |-- security scans
-   |       |-- Docker image build
-   |       +-- GHCR image publish
+   |       |-- kiểm tra chất lượng
+   |       |-- quét bảo mật
+   |       |-- build Docker image
+   |       +-- publish image lên GHCR
    |
    +--> Kubernetes manifests
            |
@@ -190,126 +178,129 @@ GitHub Repository
            +-- Loki/Promtail
 ```
 
-### 3.2 Repository Structure Added For The Project
+### 3.2 Cấu trúc repository được bổ sung
 
-| Path | Purpose |
+| Đường dẫn | Vai trò |
 | --- | --- |
-| `.github/workflows/devsecops.yml` | Quality gates and security scanning |
-| `.github/workflows/container-publish.yml` | Build and publish images to GHCR |
-| `deploy/kubernetes/` | Kubernetes and Argo CD manifests |
-| `deploy/monitoring/` | Prometheus, Grafana, Loki, Promtail configuration |
-| `docs/devops/` | Architecture, pipeline, DevSecOps, and report documentation |
+| `.github/workflows/devsecops.yml` | Quality gates và security scanning |
+| `.github/workflows/container-publish.yml` | Build và publish image lên GHCR |
+| `deploy/kubernetes/` | Kubernetes manifests và Argo CD Application |
+| `deploy/monitoring/` | Cấu hình Prometheus, Grafana, Loki, Promtail |
+| `docs/devops/` | Tài liệu kiến trúc, pipeline, DevSecOps và báo cáo |
 
 ---
 
-## 4. CI/CD Pipeline Design
+## 4. Thiết kế pipeline CI/CD
 
-### 4.1 Quality Gate Workflow
+### 4.1 Workflow kiểm tra chất lượng
 
-The `devsecops.yml` workflow runs on pull requests, pushes to `main`, and manual
-dispatch. It performs:
+Workflow `devsecops.yml` chạy khi có pull request, khi push vào `main` và khi
+chạy thủ công. Workflow này thực hiện:
 
-- Dependency installation with Node.js 22.
-- Linting.
-- TypeScript type checking.
-- API type checking.
-- Data/unit tests.
-- Sidecar tests.
+- Cài đặt dependencies bằng Node.js 22.
+- Lint mã nguồn.
+- Typecheck TypeScript.
+- Typecheck API.
+- Chạy unit/data tests.
+- Chạy sidecar tests.
 
-### 4.2 Container Publish Workflow
+### 4.2 Workflow publish container image
 
-The `container-publish.yml` workflow builds and publishes the following images
-to GitHub Container Registry:
+Workflow `container-publish.yml` build và publish các image sau lên GitHub
+Container Registry:
 
-| Image | Source Dockerfile |
+| Image | Dockerfile nguồn |
 | --- | --- |
 | `ghcr.io/<owner>/worldmonitor-app` | `Dockerfile` |
 | `ghcr.io/<owner>/worldmonitor-ais-relay` | `Dockerfile.relay` |
 | `ghcr.io/<owner>/worldmonitor-redis-rest` | `docker/Dockerfile.redis-rest` |
 
-The workflow uses two tag types:
+Workflow hỗ trợ hai loại tag:
 
-- `sha-<commit-sha>` for reproducible deployment.
-- `main-latest` for the latest `main` branch image.
+- `sha-<commit-sha>` để triển khai có thể truy vết chính xác.
+- `main-latest` cho image mới nhất từ nhánh `main`.
 
-### 4.3 GitOps Promotion Flow
+Trong môi trường thử nghiệm Kubernetes hiện tại, manifest sử dụng `main-latest`
+cho `worldmonitor-app` và `redis-rest`, còn `ais-relay` dùng image cục bộ
+`worldmonitor-ais-relay:local`. Với môi trường production, nhóm khuyến nghị pin
+image bằng tag `sha-<commit-sha>` để bảo đảm tính tái lập của GitOps.
 
-The preferred promotion flow is:
+### 4.3 Luồng promotion theo GitOps
 
-1. Code is merged into `main`.
-2. GitHub Actions builds and publishes images.
-3. Kubernetes manifests reference the selected image tag.
-4. Argo CD detects the Git change.
-5. Argo CD reconciles the cluster to the desired state.
+Luồng promotion mong muốn:
+
+1. Code được merge vào `main`.
+2. GitHub Actions build và publish image.
+3. Kubernetes manifest tham chiếu image tag được chọn.
+4. Argo CD phát hiện thay đổi trong Git.
+5. Argo CD đồng bộ cluster về trạng thái mong muốn.
 
 ---
 
-## 5. DevSecOps Integration
+## 5. Tích hợp DevSecOps
 
 ### 5.1 SAST
 
-Static application security testing is implemented with Semgrep default rules.
-The pipeline exports `semgrep.json` as a CI artifact and fails on blocking
-findings.
+SAST (Static Application Security Testing) được thực hiện bằng Semgrep default
+rules. Pipeline xuất report `semgrep.json` dưới dạng artifact CI và fail khi có
+finding nghiêm trọng.
 
-### 5.2 Dependency Scanning
+### 5.2 Dependency scanning
 
-Dependency scanning is implemented with `npm audit` for the root app and
-supporting packages. The workflow fails on high/critical vulnerabilities when a
-fix is available.
+Dependency scanning được thực hiện bằng `npm audit` cho ứng dụng chính và các
+package phụ trợ. Workflow fail khi phát hiện lỗ hổng mức high/critical có bản vá
+hoặc hướng xử lý khả dụng.
 
-### 5.3 IaC And Dockerfile Scanning
+### 5.3 IaC và Dockerfile scanning
 
-Trivy config scanning is used to check Dockerfile and infrastructure
-configuration issues. This helps detect insecure container or manifest settings
-before deployment.
+Trivy config scanning được dùng để kiểm tra Dockerfile và cấu hình hạ tầng. Bước
+này giúp phát hiện cấu hình container hoặc manifest thiếu an toàn trước khi
+triển khai.
 
-### 5.4 Container Image Scanning
+### 5.4 Container image scanning
 
-Trivy image scanning is used after building the main application image. The
-workflow ignores unfixed vulnerabilities and blocks high/critical issues that
-have a fix path.
+Trivy image scanning được chạy sau khi build image ứng dụng chính. Workflow bỏ
+qua các lỗ hổng chưa có bản vá và chặn các lỗ hổng high/critical có hướng xử lý.
 
 ### 5.5 DAST
 
-OWASP ZAP baseline scanning is available through manual workflow dispatch. It
-requires a deployed URL, so it is run after Person 2 exposes the application in
-the Kubernetes environment.
+DAST (Dynamic Application Security Testing) được hỗ trợ bằng OWASP ZAP baseline
+scan thông qua workflow dispatch thủ công. Bước này cần URL đã deploy, vì vậy
+được chạy sau khi người triển khai expose ứng dụng trong môi trường Kubernetes.
 
 ---
 
-## 6. Kubernetes And GitOps Deployment
+## 6. Triển khai Kubernetes và GitOps
 
-### 6.1 Kubernetes Resources
+### 6.1 Tài nguyên Kubernetes
 
-The Kubernetes deployment includes:
+Phần triển khai Kubernetes bao gồm:
 
 - Namespace: `worldmonitor`.
-- ConfigMap: non-secret runtime configuration.
-- Secret template: Redis token/password, relay secret, and optional external API
-  keys.
+- ConfigMap: cấu hình runtime không nhạy cảm.
+- Secret template: mật khẩu/token Redis, relay secret và các API key tùy chọn.
 - Deployments: `worldmonitor`, `ais-relay`, `redis-rest`.
 - StatefulSet: `redis`.
-- Services: ClusterIP services for each runtime component.
-- Ingress: `worldmonitor.local` through Traefik.
+- Services: ClusterIP service cho từng thành phần runtime.
+- Ingress: `worldmonitor.local` thông qua Traefik.
 
-### 6.2 Health Checks And Resources
+### 6.2 Health checks và resource control
 
-The application manifests include readiness and liveness probes:
+Manifest có readiness probe và liveness probe:
 
 | Service | Probe |
 | --- | --- |
-| `worldmonitor` | HTTP `/api/health` on port 8080 |
-| `ais-relay` | HTTP `/health` on port 3004 |
-| `redis-rest` | TCP probe on port 80 |
-| `redis` | `redis-cli ping` with password |
+| `worldmonitor` | HTTP `/api/health` trên port 8080 |
+| `ais-relay` | HTTP `/health` trên port 3004 |
+| `redis-rest` | TCP probe trên port 80 |
+| `redis` | `redis-cli ping` với password |
 
-The manifests also include CPU/memory requests and limits, `RuntimeDefault`
-seccomp profile, disabled privilege escalation, and dropped Linux capabilities.
+Manifest cũng khai báo CPU/memory requests và limits, `RuntimeDefault` seccomp
+profile, tắt privilege escalation và drop Linux capabilities.
 
 ### 6.3 Argo CD
 
-The Argo CD Application points to:
+Argo CD Application trỏ tới:
 
 ```text
 Repository: https://github.com/Youngboy1609/world-monitor-devops.git
@@ -318,176 +309,172 @@ Path: deploy/kubernetes
 Namespace: worldmonitor
 ```
 
-Automated sync is enabled with `prune` and `selfHeal`.
+Automated sync được bật với `prune` và `selfHeal`.
 
 ---
 
-## 7. Monitoring And Logging
+## 7. Monitoring và logging
 
-### 7.1 Prometheus And Grafana
+### 7.1 Prometheus và Grafana
 
-The project includes Helm values for `kube-prometheus-stack`. Grafana is used to
-visualize:
+Dự án bổ sung Helm values cho `kube-prometheus-stack`. Grafana được dùng để
+theo dõi:
 
-- CPU usage by pod.
-- Memory usage by pod.
-- Container restarts.
-- Ready pod status.
+- CPU usage theo pod.
+- Memory usage theo pod.
+- Số lần container restart.
+- Trạng thái ready của pod.
 
-![Grafana dashboard](assets/grafana-dashboard.png)
+![Dashboard Grafana theo dõi CPU, memory, restart và ready pod](assets/grafana-dashboard.png)
 
-### 7.2 Loki And Promtail
+### 7.2 Loki và Promtail
 
-The project includes Helm values for Loki and Promtail. Loki stores application
-logs, while Promtail collects logs from Kubernetes pods.
+Dự án bổ sung Helm values cho Loki và Promtail. Loki lưu trữ log ứng dụng, còn
+Promtail thu thập log từ các Kubernetes pod.
 
-![Loki logs](assets/loki-logs.png)
-
----
-
-## 8. Testing And Experimental Results
-
-### 8.1 GitOps Sync Result
-
-Argo CD shows the `worldmonitor` application as `Healthy` and `Synced`. The
-application was synced to commit `c25e4e24`, which contains the Kubernetes
-deployment and observability setup.
-
-![Argo CD Healthy and Synced](assets/argocd-healthy-synced.png)
-
-### 8.2 Kubernetes Runtime Status
-
-The cluster shows all required pods and services running in the `worldmonitor`
-namespace:
-
-- `ais-relay`
-- `redis`
-- `redis-rest`
-- two `worldmonitor` replicas
-
-![kubectl pods and services](assets/kubectl-pods-services.png)
-
-### 8.3 Application UI Test
-
-The WorldMonitor UI loads successfully through the deployed service. This
-confirms that the frontend and backend sidecar are reachable from the browser.
-
-![WorldMonitor UI](assets/worldmonitor-ui.png)
-
-### 8.4 Health Endpoint Test
-
-The `/api/health` endpoint returns HTTP 200. The payload reports overall
-`UNHEALTHY` because many live data sources and seed keys are empty, stale, or
-require optional API keys in the demo environment. This is acceptable for the
-local DevOps demonstration because the application service itself is reachable,
-and the health response correctly exposes data freshness problems.
-
-![Health endpoint](assets/health-endpoint.png)
-
-### 8.5 Logging Test
-
-Loki shows application logs from the `worldmonitor` namespace, including
-`GET /api/health` requests and health status lines. This confirms that logs are
-collected from deployed pods.
-
-![Loki logs](assets/loki-logs.png)
-
-### 8.6 Self-Healing Test
-
-The test deletes `worldmonitor` pods using a label selector. Kubernetes
-recreates the pods, and `kubectl rollout status deployment/worldmonitor`
-completes successfully with two available replicas.
-
-![Self-healing rollout](assets/self-healing-rollout.png)
+![Log ứng dụng được thu thập trong Loki](assets/loki-logs.png)
 
 ---
 
-## 9. Work Division
+## 8. Kiểm thử và kết quả thực nghiệm
 
-### 9.1 Person 1
+### 8.1 Kết quả đồng bộ GitOps
 
-Person 1 completed:
+Argo CD hiển thị ứng dụng `worldmonitor` ở trạng thái `Healthy` và `Synced`.
+Ứng dụng được đồng bộ tới commit `c25e4e24`, là commit bổ sung Kubernetes
+deployment và observability setup.
 
-- CI/CD workflow design.
-- DevSecOps workflow implementation.
-- Container publish workflow for GHCR.
-- Architecture, pipeline, DevSecOps, and report documentation.
+![Argo CD hiển thị trạng thái Healthy và Synced](assets/argocd-healthy-synced.png)
 
-### 9.2 Person 2
+### 8.2 Trạng thái runtime trên Kubernetes
 
-Person 2 completed:
+Cluster hiển thị đầy đủ pod và service cần thiết trong namespace
+`worldmonitor`:
 
-- Kubernetes manifests for `worldmonitor`, `ais-relay`, `redis-rest`, and
+- `ais-relay`.
+- `redis`.
+- `redis-rest`.
+- Hai replica `worldmonitor`.
+
+![Kết quả kubectl get pods,svc trong namespace worldmonitor](assets/kubectl-pods-services.png)
+
+### 8.3 Kiểm thử giao diện ứng dụng
+
+Giao diện WorldMonitor tải thành công thông qua service đã triển khai. Kết quả
+này xác nhận frontend và backend sidecar có thể truy cập được từ trình duyệt.
+
+![Giao diện WorldMonitor sau khi triển khai](assets/worldmonitor-ui.png)
+
+### 8.4 Kiểm thử health endpoint
+
+Endpoint `/api/health` trả về HTTP 200. Payload tổng thể báo `UNHEALTHY` vì môi
+trường thử nghiệm cục bộ chưa cấu hình đầy đủ API key hoặc dữ liệu seed cho toàn
+bộ nguồn dữ liệu live. Đây là kết quả chấp nhận được trong phạm vi kiểm chứng
+DevOps: service ứng dụng vẫn reachable, và health endpoint phản ánh đúng trạng
+thái freshness của dữ liệu.
+
+![Kết quả gọi endpoint /api/health](assets/health-endpoint.png)
+
+### 8.5 Kiểm thử logging
+
+Loki hiển thị log từ namespace `worldmonitor`, bao gồm request
+`GET /api/health` và các dòng log health status. Điều này xác nhận log từ pod đã
+được thu thập về hệ thống logging tập trung.
+
+### 8.6 Kiểm thử self-healing
+
+Nhóm xóa các pod `worldmonitor` bằng label selector. Kubernetes tự tạo lại pod
+mới, và lệnh `kubectl rollout status deployment/worldmonitor` kết thúc thành
+công với hai replica available.
+
+![Kubernetes tự phục hồi sau khi xóa pod worldmonitor](assets/self-healing-rollout.png)
+
+---
+
+## 9. Phân chia công việc
+
+### 9.1 Thành viên 1
+
+Thành viên 1 đã hoàn thành:
+
+- Thiết kế workflow CI/CD.
+- Tích hợp workflow DevSecOps.
+- Tạo workflow publish container image lên GHCR.
+- Viết tài liệu kiến trúc, pipeline, DevSecOps và báo cáo.
+
+### 9.2 Thành viên 2
+
+Thành viên 2 đã hoàn thành:
+
+- Kubernetes manifests cho `worldmonitor`, `ais-relay`, `redis-rest` và
   `redis`.
-- Argo CD Application for GitOps deployment.
-- Prometheus/Grafana and Loki/Promtail configuration.
-- Deployment testing screenshots.
-- Health check, logging, dashboard, and self-healing evidence.
+- Argo CD Application cho triển khai GitOps.
+- Cấu hình Prometheus/Grafana và Loki/Promtail.
+- Ảnh minh chứng quá trình triển khai.
+- Kiểm thử health check, logging, dashboard và self-healing.
 
 ---
 
-## 10. Limitations And Future Work
+## 10. Hạn chế và hướng phát triển
 
-### 10.1 Limitations
+### 10.1 Hạn chế
 
-- The deployment uses a practical service split instead of refactoring every API
-  domain into a separate microservice.
-- The local demo uses placeholder or optional API keys, so some WorldMonitor
-  health checks report stale or missing upstream data.
-- DAST requires a deployed URL and should be run manually after exposing the
-  service.
-- The current Kubernetes setup is suitable for local demo; production would
-  require stricter secret management, TLS, persistent storage policies, and
-  network policies.
+- Kiến trúc triển khai sử dụng cách tách service thực dụng, chưa refactor từng
+  API domain thành microservice độc lập.
+- Môi trường thử nghiệm cục bộ dùng giá trị cấu hình mẫu hoặc thiếu một số API
+  key tùy chọn, nên một số health check dữ liệu báo stale hoặc missing.
+- DAST cần URL đã deploy nên phải chạy thủ công sau khi expose service.
+- Cấu hình Kubernetes hiện phù hợp cho thử nghiệm cục bộ; môi trường production
+  cần quản lý secret chặt hơn, TLS, chính sách persistent storage và
+  NetworkPolicy.
 
-### 10.2 Future Work
+### 10.2 Hướng phát triển
 
-- Add production and staging overlays with Kustomize or Helm.
-- Add NetworkPolicy and External Secrets integration.
-- Add Argo Rollouts for progressive delivery.
-- Add ServiceMonitor resources for application-specific metrics.
-- Extend container scanning to all runtime images in a matrix.
-- Export the final report to PDF using the official faculty template if
-  provided by the instructor.
-
----
-
-## 11. Conclusion
-
-The project successfully designs and implements a DevOps workflow for
-WorldMonitor on Kubernetes. The CI/CD workflows automate quality and security
-checks, while container publishing prepares images for deployment. Kubernetes
-manifests define the runtime services, Argo CD manages GitOps synchronization,
-and the observability stack provides monitoring and logging.
-
-The experimental evidence shows that the application is deployed, synchronized
-by Argo CD, reachable through the browser, observable through Grafana and Loki,
-and capable of self-healing after pod deletion. Although the demo environment
-does not provide all optional API keys and therefore reports some data freshness
-warnings, the DevOps, DevSecOps, and GitOps objectives are achieved.
+- Bổ sung Kustomize overlay hoặc Helm chart cho staging/production.
+- Tích hợp NetworkPolicy và External Secrets.
+- Bổ sung Argo Rollouts cho progressive delivery.
+- Bổ sung ServiceMonitor cho metrics đặc thù của ứng dụng.
+- Mở rộng container scanning cho toàn bộ runtime image.
+- Xuất báo cáo theo mẫu chính thức của khoa/trường khi có tài liệu mẫu được
+  cung cấp.
 
 ---
 
-## 12. References
+## 11. Kết luận
 
-1. Faculty of Software Engineering, UIT. "Graduation thesis report submission
-   notice 2024-2025." The notice states that each topic submits one PDF report
-   following the thesis presentation template and provides a naming convention.
+Đồ án đã thiết kế và triển khai thành công quy trình DevOps cho WorldMonitor
+trên Kubernetes. Workflow CI/CD tự động hóa kiểm tra chất lượng và bảo mật, đồng
+thời chuẩn bị image cho triển khai. Kubernetes manifests định nghĩa các service
+runtime, Argo CD quản lý đồng bộ GitOps, còn monitoring/logging cung cấp khả
+năng quan sát trong quá trình vận hành.
+
+Bằng chứng thực nghiệm cho thấy ứng dụng đã được triển khai, được Argo CD đồng
+bộ, truy cập được qua trình duyệt, quan sát được qua Grafana và Loki, đồng thời
+có khả năng tự phục hồi sau khi pod bị xóa. Dù môi trường thử nghiệm chưa có
+toàn bộ API key tùy chọn nên health endpoint vẫn báo một số cảnh báo dữ liệu,
+các mục tiêu chính về DevOps, DevSecOps và GitOps đã được đáp ứng.
+
+---
+
+## 12. Tài liệu tham khảo
+
+1. Khoa Công nghệ Phần mềm, UIT. "Thông báo nộp báo cáo Khóa luận tốt nghiệp
+   đợt 1 năm học 2024-2025." Thông báo nêu yêu cầu mỗi đề tài nộp một file PDF
+   theo mẫu trình bày khóa luận tốt nghiệp và quy tắc đặt tên file.
    <https://se.uit.edu.vn/en/tin-tuc/10-thong-bao-hoc-vu/1809-th%C3%B4ng-b%C3%A1o-n%E1%BB%99p-b%C3%A1o-c%C3%A1o-kh%C3%B3a-lu%E1%BA%ADn-t%E1%BB%91t-nghi%E1%BB%87p-%C4%91%E1%BB%A3t-1-n%C4%83m-h%E1%BB%8Dc-2024-2025.html>
 
-2. Faculty of Computer Engineering, UIT. "Post-defense thesis submission notice
-   2024-2025." The notice lists report PDF/DOCX, two-page summary, slides,
-   design artifacts, and demo video as submission artifacts when applicable.
+2. Khoa Kỹ thuật Máy tính, UIT. "Thông báo nộp Khóa luận tốt nghiệp sau bảo vệ
+   học kỳ 1 năm học 2024-2025." Thông báo liệt kê các artifact như báo cáo
+   PDF/DOCX, báo cáo tóm tắt, slide, thiết kế và video minh họa nếu có.
    <https://fce.uit.edu.vn/thong-bao-ve-viec-nop-khoa-luan-tot-nghiep-hoc-ky-1-nam-hoc-2024-2025-ban-sau-bao-ve/>
 
-3. Faculty of Information Systems, UIT. "Updated thesis form notice." The notice
-   explains that the latest thesis template is available through UIT DAA
-   internal forms and may require login.
+3. Khoa Hệ thống Thông tin, UIT. "Mẫu mới biểu mẫu khóa luận tốt nghiệp." Thông
+   báo cho biết biểu mẫu mới nhất có thể tải tại mục biểu mẫu nội bộ trên DAA.
    <https://httt.uit.edu.vn/mau-moi-bieu-mau-khoa-luan-tot-nghiep/>
 
-4. Faculty of Computer Networks and Communications, UIT. "Specialized project
-   report submission notice." The notice describes project report submission and
-   filename requirements for a course project context.
+4. Khoa Mạng máy tính và Truyền thông, UIT. "Thông báo về việc nộp báo cáo Đồ
+   án chuyên ngành." Thông báo mô tả việc nộp báo cáo đồ án và quy tắc đặt tên
+   file.
    <https://nc.uit.edu.vn/tin-tuc/thong-bao-hoc-vu/thong-bao-ve-viec-nop-bao-cao-do-an-chuyen-nganh.html>
 
 5. Kubernetes Documentation. <https://kubernetes.io/docs/>
@@ -502,23 +489,25 @@ warnings, the DevOps, DevSecOps, and GitOps objectives are achieved.
 
 ---
 
-## 13. Appendices
+## 13. Phụ lục
 
-### Appendix A. Main Commits
+### Phụ lục A. Các commit chính
 
-| Commit | Description |
+| Commit | Nội dung |
 | --- | --- |
-| `ad9cce4d` | Add DevOps project CI and report docs |
-| `c25e4e24` | Add Kubernetes deployment and observability setup |
+| `ad9cce4d` | Bổ sung CI/CD, DevSecOps và tài liệu ban đầu |
+| `c25e4e24` | Bổ sung Kubernetes deployment và observability setup |
+| `740a6d2a` | Bổ sung báo cáo UIT và ảnh minh chứng |
+| `5d9cf622` | Xuất bản PDF báo cáo cuối kỳ |
 
-### Appendix B. Screenshots
+### Phụ lục B. Danh sách ảnh minh chứng
 
-| Evidence | File |
+| Minh chứng | File |
 | --- | --- |
-| Grafana operations dashboard | `docs/devops/assets/grafana-dashboard.png` |
+| Dashboard Grafana | `docs/devops/assets/grafana-dashboard.png` |
 | Argo CD Healthy/Synced | `docs/devops/assets/argocd-healthy-synced.png` |
-| WorldMonitor deployed UI | `docs/devops/assets/worldmonitor-ui.png` |
+| Giao diện WorldMonitor sau deploy | `docs/devops/assets/worldmonitor-ui.png` |
 | Kubernetes pods/services | `docs/devops/assets/kubectl-pods-services.png` |
-| `/api/health` result | `docs/devops/assets/health-endpoint.png` |
-| Loki logs | `docs/devops/assets/loki-logs.png` |
-| Self-healing rollout | `docs/devops/assets/self-healing-rollout.png` |
+| Kết quả `/api/health` | `docs/devops/assets/health-endpoint.png` |
+| Log Loki | `docs/devops/assets/loki-logs.png` |
+| Kiểm thử self-healing | `docs/devops/assets/self-healing-rollout.png` |
