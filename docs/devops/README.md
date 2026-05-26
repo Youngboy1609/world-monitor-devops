@@ -7,6 +7,7 @@ project:
 - [CI/CD pipeline](pipeline.md)
 - [DevSecOps design](devsecops.md)
 - [Final project report](report.md)
+- [UIT-style final report](final-report-uit.md)
 
 Person 1 owns CI/CD, DevSecOps workflows, and the report skeleton. Person 2 owns
 Kubernetes deployment, Argo CD sync, monitoring, logging, and cluster-level
