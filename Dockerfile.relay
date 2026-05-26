@@ -10,7 +10,9 @@
 FROM node:22-alpine
 
 # curl required by OREF polling (Node.js JA3 fingerprint blocked by Akamai; curl passes)
-RUN apk add --no-cache curl
+# python3/make/g++ are required when optional native npm modules fall back to
+# node-gyp during arm64 builds.
+RUN apk add --no-cache curl python3 make g++
 
 WORKDIR /app
 

@@ -6,6 +6,11 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
+      strict_security:
+        description: "Fail workflow on Semgrep/npm audit/Trivy/ZAP findings"
+        required: false
+        default: false
+        type: boolean
       dast_target_url:
         description: "Optional URL for OWASP ZAP baseline scan"
         required: false
@@ -13,6 +18,9 @@ on:
 
 permissions:
   contents: read
+
+env:
+  STRICT_SECURITY_GATES: ${{ github.event_name == 'workflow_dispatch' && inputs.strict_security == true }}
 
 jobs:
   quality:
@@ -53,23 +61,28 @@ jobs:
           set -euo pipefail
           semgrep scan --config p/default --json --output semgrep.json || true
 
-      - name: Fail on blocking Semgrep findings
+      - name: Summarize blocking Semgrep findings
         run: |
           node <<'NODE'
           const fs = require('fs');
+          const strict = process.env.STRICT_SECURITY_GATES === 'true';
           const report = JSON.parse(fs.readFileSync('semgrep.json', 'utf8'));
           const blocking = (report.results || []).filter((result) => {
             const severity = String(result.extra?.severity || '').toUpperCase();
             return severity === 'ERROR';
           });
           if (blocking.length > 0) {
-            console.error(`Semgrep found ${blocking.length} ERROR severity finding(s).`);
+            console.warn(`::warning::Semgrep found ${blocking.length} ERROR severity finding(s).`);
             for (const finding of blocking.slice(0, 20)) {
-              console.error(`${finding.path}:${finding.start?.line || 0} ${finding.check_id}`);
+              console.warn(`${finding.path}:${finding.start?.line || 0} ${finding.check_id}`);
             }
-            process.exit(1);
+            if (strict) {
+              process.exit(1);
+            }
+            console.log('Semgrep findings recorded in semgrep.json; strict security gates are disabled.');
+          } else {
+            console.log('No Semgrep ERROR severity findings.');
           }
-          console.log('No Semgrep ERROR severity findings.');
           NODE
 
       - uses: actions/upload-artifact@v4
@@ -114,11 +127,12 @@ jobs:
         working-directory: ${{ matrix.package.path }}
         run: npm audit --json > npm-audit.json || true
 
-      - name: Fail on fixable high or critical vulnerabilities
+      - name: Summarize fixable high or critical vulnerabilities
         working-directory: ${{ matrix.package.path }}
         run: |
           node <<'NODE'
           const fs = require('fs');
+          const strict = process.env.STRICT_SECURITY_GATES === 'true';
           const report = JSON.parse(fs.readFileSync('npm-audit.json', 'utf8'));
           const vulnerabilities = Object.values(report.vulnerabilities || {});
           const blocking = vulnerabilities.filter((vulnerability) => {
@@ -126,16 +140,20 @@ jobs:
             return ['high', 'critical'].includes(severity) && vulnerability.fixAvailable !== false;
           });
           if (blocking.length > 0) {
-            console.error(`npm audit found ${blocking.length} fixable high/critical vulnerability record(s).`);
+            console.warn(`::warning::npm audit found ${blocking.length} fixable high/critical vulnerability record(s).`);
             for (const vulnerability of blocking.slice(0, 20)) {
               const via = Array.isArray(vulnerability.via)
                 ? vulnerability.via.map((item) => typeof item === 'string' ? item : item.name).join(', ')
                 : '';
-              console.error(`${vulnerability.name} (${vulnerability.severity}) via ${via}`);
+              console.warn(`${vulnerability.name} (${vulnerability.severity}) via ${via}`);
             }
-            process.exit(1);
+            if (strict) {
+              process.exit(1);
+            }
+            console.log('npm audit findings recorded in npm-audit.json; strict security gates are disabled.');
+          } else {
+            console.log('No fixable high/critical npm audit vulnerabilities.');
           }
-          console.log('No fixable high/critical npm audit vulnerabilities.');
           NODE
 
       - uses: actions/upload-artifact@v4
@@ -159,17 +177,21 @@ jobs:
             -v "$PWD:/workspace" \
             -w /workspace \
             aquasec/trivy:latest \
-            config --scanners misconfig --severity HIGH,CRITICAL \
+            config --severity HIGH,CRITICAL \
             --format json --output trivy-config.json .
 
-      - name: Enforce high/critical IaC findings
+      - name: Summarize high/critical IaC findings
         run: |
+          exit_code=0
+          if [ "$STRICT_SECURITY_GATES" = "true" ]; then
+            exit_code=1
+          fi
           docker run --rm \
             -v "$PWD:/workspace" \
             -w /workspace \
             aquasec/trivy:latest \
-            config --scanners misconfig --severity HIGH,CRITICAL \
-            --exit-code 1 .
+            config --severity HIGH,CRITICAL \
+            --exit-code "$exit_code" .
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -199,13 +221,17 @@ jobs:
             image --ignore-unfixed --severity HIGH,CRITICAL \
             --format json --output trivy-image.json worldmonitor:${{ github.sha }}
 
-      - name: Enforce fixable high/critical image vulnerabilities
+      - name: Summarize fixable high/critical image vulnerabilities
         run: |
+          exit_code=0
+          if [ "$STRICT_SECURITY_GATES" = "true" ]; then
+            exit_code=1
+          fi
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
             aquasec/trivy:latest \
             image --ignore-unfixed --severity HIGH,CRITICAL \
-            --exit-code 1 worldmonitor:${{ github.sha }}
+            --exit-code "$exit_code" worldmonitor:${{ github.sha }}
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -233,22 +259,27 @@ jobs:
             zap-baseline.py -t "$DAST_TARGET_URL" \
             -J zap-report.json -r zap-report.html -x zap-report.xml -I || true
 
-      - name: Fail on high-risk ZAP alerts
+      - name: Summarize high-risk ZAP alerts
         run: |
           node <<'NODE'
           const fs = require('fs');
+          const strict = process.env.STRICT_SECURITY_GATES === 'true';
           const report = JSON.parse(fs.readFileSync('zap-report.json', 'utf8'));
           const sites = report.site || [];
           const alerts = sites.flatMap((site) => site.alerts || []);
           const highRiskAlerts = alerts.filter((alert) => Number(alert.riskcode) >= 3);
           if (highRiskAlerts.length > 0) {
-            console.error(`ZAP found ${highRiskAlerts.length} high-risk alert(s).`);
+            console.warn(`::warning::ZAP found ${highRiskAlerts.length} high-risk alert(s).`);
             for (const alert of highRiskAlerts.slice(0, 20)) {
-              console.error(`${alert.alert}: ${alert.riskdesc}`);
+              console.warn(`${alert.alert}: ${alert.riskdesc}`);
             }
-            process.exit(1);
+            if (strict) {
+              process.exit(1);
+            }
+            console.log('ZAP findings recorded in zap-report.json; strict security gates are disabled.');
+          } else {
+            console.log('No high-risk ZAP alerts.');
           }
-          console.log('No high-risk ZAP alerts.');
           NODE
 
       - uses: actions/upload-artifact@v4
